@@ -1,5 +1,14 @@
 <template>
     <lightning-card title="Auto Complete Combobox"> 
-
+        <lightning-combobox
+            name="Select Object"
+            label="Object"
+            placeholder="Choose Object"
+            value={value}
+            onchange={handleChange}
+            options={statusOptions}
+        >
+        </lightning-combobox>
+        <p>Selected Object: {value}</p>
     </lightning-card>
 </template>
