@@ -3,20 +3,23 @@
         <lightning-tabset>
 
             <lightning-tab label="A Notes Approval">
-            <lightning-card>   
-                    <div style="height: 300px;">
-                        <lightning-datatable
-                                key-field="id"
-                                data={data}
-                                columns={columns}
-                                
-                                sorted-by={sortBy}
-                                sorted-direction={sortDirection}
-                                onsort={doSorting}
-                                hide-checkbox-column="true">
-                        </lightning-datatable>
-                    </div>
-
+            <lightning-card>
+                <template if:true={data}>
+                    <lightning-datatable key-field="Id" 
+                                         data={data} 
+                                         columns={columns} 
+                                         hide-checkbox-column="true"
+                                         show-row-number-column="true" 
+                                         onrowaction={callRowAction}
+                                         sorted-by={sortBy}
+                                         sorted-direction={sortDirection}
+                                         onsort={doSorting}>
+                    </lightning-datatable>
+                </template>
+                <template if:true={error}>
+                    {error}>
+                </template>
+                
                 <!--PAGE NAVIGATION-->
                 <div class="slds-align_absolute-center" style="height:5rem">
                     <lightning-button disabled={bDisableFirst} icon-name="utility:jump_to_left" label="First" class="slds-p-horizontal_x-small" alternative-text="first page" onclick={firstPage}></lightning-button>
@@ -40,7 +43,7 @@
 
             <lightning-tab label="B Notes Approval" title="B Notes Approval">
                 <lightning-card>   
-                    <div style="height: 300px;">
+                    
                         <lightning-datatable
                                 key-field="id"
                                 data={data}
@@ -51,7 +54,7 @@
                                 onsort={doSorting}
                                 hide-checkbox-column="true">
                         </lightning-datatable>
-                    </div>
+                    
 
                 <!--PAGE NAVIGATION-->
                 <div class="slds-align_absolute-center" style="height:5rem">

@@ -1,25 +1,111 @@
-import { LightningElement } from 'lwc';
-import generateData from './generateData';
+import { LightningElement, track, wire } from 'lwc';
+import getAccounts from '@salesforce/apex/AccountDataController.getAccounts';
+import { NavigationMixin } from 'lightning/navigation';
+import { deleteRecord } from 'lightning/uiRecordApi';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { refreshApex } from '@salesforce/apex';
 
 const columns = [
-    { label: 'ACTION', fieldName: 'name', sortable: "true"},
-    { label: 'SERVICE DATE THRU', fieldName: 'closeAt', type: 'date', sortable: "true" },
-    { label: 'CASE REPORT / EMPLOYEE NAME', fieldName: 'fullname', sortable: "true" },
-    { label: 'ACCOUNT', fieldName: 'account', sortable: "true" },
-    { label: 'PRIORITY', fieldName: 'priority', sortable: "true"},
-    { label: 'IN REVIEW', fieldName: 'review', sortable: "true"},
-    { label: 'MOST RECENT APPROVER', fieldName: 'fullname', sortable: "true" },
-    { label: 'CASE REPORT / OPPORTUNITY RECORD TYPE', fieldName: 'name', sortable: "true" },
+    { label: 'Name', fieldName: 'Name', sortable: "true" },
+    { label: 'Phone', fieldName: 'Phone', sortable: "true" },
+    { label: 'Type', fieldName: 'Type', sortable: "true" },
+    { label: 'Rating', fieldName: 'Rating', sortable: "true" },
+    { label: 'Industry', fieldName: 'Industry', sortable: "true" },
+    {
+        type: "button", label: 'View', initialWidth: 100, typeAttributes: {
+            label: 'View',
+            name: 'View',
+            title: 'View',
+            disabled: false,
+            value: 'view',
+            iconPosition: 'left',
+            iconName:'utility:preview',
+            variant:'Brand'
+        }
+    },
+    {
+        type: "button", label: 'Edit', initialWidth: 100, typeAttributes: {
+            label: 'Edit',
+            name: 'Edit',
+            title: 'Edit',
+            disabled: false,
+            value: 'edit',
+            iconPosition: 'left',
+            iconName:'utility:edit',
+            variant:'Brand'
+        }
+    },
+    {
+        type: "button", label: 'Delete', initialWidth: 110, typeAttributes: {
+            label: 'Delete',
+            name: 'Delete',
+            title: 'Delete',
+            disabled: false,
+            value: 'delete',
+            iconPosition: 'left',
+            iconName:'utility:delete',
+            variant:'destructive'
+        }
+    }
 ];
 
-export default class ReportApprovals extends LightningElement {
-    data = [];
+export default class ButtonsInLWC extends NavigationMixin(LightningElement) {
+    @track data;
+    @track wireResult;
+    @track error;
     columns = columns;
-   
 
-    connectedCallback() {
-        const data = generateData({ amountOfRecords: 9 });
-        this.data = data;
+    @wire(getAccounts)
+    wiredAccounts(result) {
+        this.wireResult = result;
+        if (result.data) {
+            this.data = result.data;
+        } else if (result.error) {
+            this.error = result.error;
+        }
+    }
+
+    callRowAction(event) {
+        const recId = event.detail.row.Id;
+        const actionName = event.detail.action.name;
+        if (actionName === 'Edit') {
+            this.handleAction(recId, 'edit');
+        } else if (actionName === 'Delete') {
+            this.handleDeleteRow(recId);
+        } else if (actionName === 'View') {
+            this.handleAction(recId, 'view');
+        }
+    }
+
+    handleAction(recordId, mode) {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__recordPage',
+            attributes: {
+                recordId: recordId,
+                objectApiName: 'Account',
+                actionName: mode
+            }
+        })
+    }
+
+    handleDeleteRow(recordIdToDelete) {
+        deleteRecord(recordIdToDelete)
+            .then(result => {
+                this.showToast('Success!!', 'Record deleted successfully!!', 'success', 'dismissable');
+                return refreshApex(this.wireResult);
+            }).catch(error => {
+                this.error = error;
+            });
+    }
+
+    showToast(title, message, variant, mode) {
+        const evt = new ShowToastEvent({
+            title: title,
+            message: message,
+            variant: variant,
+            mode: mode
+        });
+        this.dispatchEvent(evt);
     }
 
     doSorting(event) {
@@ -27,7 +113,7 @@ export default class ReportApprovals extends LightningElement {
         this.sortDirection = event.detail.sortDirection;
         this.sortData(this.sortBy, this.sortDirection);
     }
-    
+
     sortData(fieldname, direction) {
         let parseData = JSON.parse(JSON.stringify(this.data));
         // Return the value stored in the field
@@ -44,63 +130,5 @@ export default class ReportApprovals extends LightningElement {
             return isReverse * ((x > y) - (y > x));
         });
         this.data = parseData;
-    } 
-
-//------------------------------------------------------//
-    get bDisableFirst() {
-        return this.pageNumber == 1;
-    }
-
-    get bDisableLast() {
-        return this.pageNumber == this.totalPages;
-    }
-
-    handleRecordsPerPage(event) {
-        this.pageSize = event.target.value;
-        this.paginationHelper();
-    }
-
-    previousPage() {
-        this.pageNumber = this.pageNumber - 1;
-        this.paginationHelper();
-    }
-
-    nextPage() {
-        this.pageNumber = this.pageNumber + 1;
-        this.paginationHelper();
-    }
-
-    firstPage() {
-        this.pageNumber = 1;
-        this.paginationHelper();
-    }
-
-    lastPage() {
-        this.pageNumber = this.totalPages;
-        this.paginationHelper();
-    }
-
-     // JS function to handel pagination logic 
-     paginationHelper() {
-        this.recordsToDisplay = [];
-        // calculate total pages
-        this.totalPages = Math.ceil(this.totalRecords / this.pageSize);
-        // set page number 
-        if (this.pageNumber <= 1) {
-            this.pageNumber = 1;
-        } else if (this.pageNumber >= this.totalPages) {
-            this.pageNumber = this.totalPages;
-        }
-        // set records to display on current page 
-        for (let i = (this.pageNumber - 1) * this.pageSize; i < this.pageNumber * this.pageSize; i++) {
-            if (i === this.totalRecords) {
-                break;
-            }
-            this.recordsToDisplay.push(this.records[i]);
-        }
-    }
-
-
-//???????????????????????//
-    
-}
+    }    
+}  
