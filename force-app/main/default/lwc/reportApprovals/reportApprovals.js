@@ -1,14 +1,12 @@
 import { LightningElement, track, wire } from 'lwc';
-//Import apex method 
 import fetchContacts from '@salesforce/apex/ContactDataController.fetchContacts';
-import { NavigationMixin } from 'lightning/navigation';
-import { deleteRecord } from 'lightning/uiRecordApi';
-import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import { refreshApex } from '@salesforce/apex';
 
 export default class DatatableWithPagination extends LightningElement {
     
     // JS Properties 
+    @track isModalOpen = false;
+    @track objectName = 'Contact';
+    @track recordId;
     pageSizeOptions = [5, 10, 25, 50, 75, 100]; //Page size options
     records = []; //All records available in the data table
     columns = []; //columns information available in the data table
@@ -17,13 +15,6 @@ export default class DatatableWithPagination extends LightningElement {
     totalPages; //Total no.of pages
     pageNumber = 1; //Page number    
     recordsToDisplay = []; //Records to be displayed on the page
-    @track isModalOpen = false;
-    @track objectName = 'Contact';
-    
-
-    //---------Test Sarjerao-----//
-
-    @track recordId;
 
     get bDisableFirst() {
         return this.pageNumber == 1;

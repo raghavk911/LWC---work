@@ -10,9 +10,6 @@
                                                 data={recordsToDisplay} 
                                                 hide-checkbox-column="true" 
                                                 columns={columns}
-                                            
-                                               
-
                                                 onrowaction={openModal}
                                                 sorted-by={sortBy}
                                                 sorted-direction={sortDirection}
@@ -25,7 +22,7 @@
                                 <div class="slds-list_inline slds-p-bottom_xx-small">
                                     <label class="slds-text-color_weak slds-p-horizontal_x-small" for="recordsPerPage">Page Size:</label>
                                     <div class="slds-select_container">
-                                        <select class="slds-select" id="recordsPerPage" onchange={handleRecordsPerPage}>
+                                        <select class="slds-select" id="recordsPerPage1" onchange={handleRecordsPerPage}>
                                             <template for:each={pageSizeOptions} for:item="option">
                                                 <option key={option} value={option}>{option}</option>
                                             </template>
@@ -65,16 +62,22 @@
                                             size="small" ></lightning-icon>
                                         <span class="slds-assistive-text">Close</span>
                                     </button>
-                                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Modal/PopUp Box header LWC</h2>
+                                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Report Record Details</h2>
                                 </header>
                                 <!-- Modal/Popup Box LWC body starts here -->
                                 <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
-                                        <lightning-record-form 
-                                        record-id={recordId} 
-                                        object-api-name={objectName} 
-                                        layout-type="Full" 
-                                        mode="view">
-                                    </lightning-record-form>
+                                    <lightning-record-view-form
+                                            record-id={recordId} 
+                                            object-api-name={objectName}
+                                        >
+
+                                        <div class="slds-box">
+                                            <lightning-output-field field-name="Name"> </lightning-output-field>
+                                            <lightning-output-field field-name="Email"></lightning-output-field>
+                                            <lightning-output-field field-name="Phone"> </lightning-output-field>
+                                            <lightning-output-field field-name="MailingState"></lightning-output-field>
+                                        </div>
+                                    </lightning-record-view-form>
                                 </div>
                                 <!-- Modal/Popup Box LWC footer starts here -->
                                 <footer class="slds-modal__footer">
@@ -86,94 +89,279 @@
                         <div class="slds-backdrop slds-backdrop_open"></div>
                     </template>
 
-                    </lightning-card>
-                </lightning-tab>
+                </lightning-card>
+            </lightning-tab>
 
             <lightning-tab label="B Notes Approval" title="B Notes Approval">
-                <lightning-card>   
-                    <lightning-datatable
-                        key-field="id"
-                        data={recordsToDisplay}
-                        columns={columns}
-
-                        sorted-by={sortBy}
-                        sorted-direction={sortDirection}
-                        onsort={doSorting}
-                        hide-checkbox-column="true">
-                    </lightning-datatable>
-
-                    <!--PAGE NAVIGATION-->
-                    <div class="slds-align_absolute-center" style="height:5rem">
-                        <lightning-button disabled={bDisableFirst} icon-name="utility:jump_to_left" label="First" class="slds-p-horizontal_x-small" alternative-text="first page" onclick={firstPage}></lightning-button>
-                        <lightning-button disabled={bDisableFirst} icon-name="utility:chevronleft" label="Previous" alternative-text="Previous" onclick={previousPage}></lightning-button>
-                        &nbsp;
-                        <!--<span class="slds-badge">Showing {pageNumber} &nbsp;of&nbsp; {totalPages} &nbsp;&nbsp;Page(s)</span>-->
-                        <span class="slds-badge">Showing {pageNumber} &nbsp;of&nbsp; {totalPages} &nbsp;&nbsp;Page(s)</span>
-                        &nbsp;
-                        <lightning-button disabled={bDisableLast} icon-name="utility:chevronright" label="Next" alternative-text="Next" onclick={nextPage} class="slds-p-horizontal_x-small" icon-position="right"></lightning-button>
-                        <lightning-button disabled={bDisableLast} icon-name="utility:jump_to_right" label="Last" alternative-text="last page" onclick={lastPage} icon-position="right"></lightning-button>
-                    </div>
+                <lightning-card>
+                    <template if:true={records}>
+                        <!--LIGHTNING DATATABLE-->
+                        <div style="height:400px">
+                            <lightning-datatable key-field="Id" 
+                                                data={recordsToDisplay} 
+                                                hide-checkbox-column="true" 
+                                                columns={columns}
+                                                onrowaction={openModal}
+                                                sorted-by={sortBy}
+                                                sorted-direction={sortDirection}
+                                                onsort={doSorting}>
+                            </lightning-datatable>
+                        </div>
+                        <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-spread" style="padding-top: 0.5em;">
+                            <!--RECORDS PER PAGE-->
+                            <div class="slds-col">
+                                <div class="slds-list_inline slds-p-bottom_xx-small">
+                                    <label class="slds-text-color_weak slds-p-horizontal_x-small" for="recordsPerPage">Page Size:</label>
+                                    <div class="slds-select_container">
+                                        <select class="slds-select" id="recordsPerPage2" onchange={handleRecordsPerPage}>
+                                            <template for:each={pageSizeOptions} for:item="option">
+                                                <option key={option} value={option}>{option}</option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--PAGE NAVIGATION-->
+                            <div class="slds-align_absolute-center" style="height:5rem">
+                                <lightning-button disabled={bDisableFirst} icon-name="utility:jump_to_left" label="First" class="slds-p-horizontal_x-small" alternative-text="first page" onclick={firstPage}></lightning-button>
+                                <lightning-button disabled={bDisableFirst} icon-name="utility:chevronleft" label="Previous" alternative-text="Previous" onclick={previousPage}></lightning-button>
+                                &nbsp;
+                                <span class="slds-badge">Showing {pageNumber} &nbsp;of&nbsp; {totalPages} &nbsp;&nbsp;Page(s)</span>
+                                &nbsp;
+                                <lightning-button disabled={bDisableLast} icon-name="utility:chevronright" label="Next" alternative-text="Next" onclick={nextPage} class="slds-p-horizontal_x-small" icon-position="right"></lightning-button>
+                                <lightning-button disabled={bDisableLast} icon-name="utility:jump_to_right" label="Last" alternative-text="last page" onclick={lastPage} icon-position="right"></lightning-button>
+                            </div>
+                            <!--TOTAL RECORDS-->
+                            <div class="slds-clearfix">
+                                <div class="slds-float_right">
+                                    <span class="slds-badge"> Total Records: {totalRecords}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+    
+                    <template if:true={isModalOpen}>
+                        <!-- Modal/Popup Box LWC starts here -->
+                        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                            <div class="slds-modal__container">
+                                <!-- Modal/Popup Box LWC header here -->
+                                <header class="slds-modal__header">
+                                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModal}>
+                                        <lightning-icon icon-name="utility:close"
+                                            alternative-text="close"
+                                            variant="inverse"
+                                            size="small" ></lightning-icon>
+                                        <span class="slds-assistive-text">Close</span>
+                                    </button>
+                                    <h2 id="modal-heading-02" class="slds-text-heading_medium slds-hyphenate">Report Record Details</h2>
+                                </header>
+                                <!-- Modal/Popup Box LWC body starts here -->
+                                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+                                    <lightning-record-view-form
+                                            record-id={recordId} 
+                                            object-api-name={objectName}
+                                        >
+    
+                                        <div class="slds-box">
+                                            <lightning-output-field field-name="Name"> </lightning-output-field>
+                                            <lightning-output-field field-name="Email"></lightning-output-field>
+                                            <lightning-output-field field-name="Phone"> </lightning-output-field>
+                                            <lightning-output-field field-name="MailingState"></lightning-output-field>
+                                        </div>
+                                    </lightning-record-view-form>
+                                </div>
+                                <!-- Modal/Popup Box LWC footer starts here -->
+                                <footer class="slds-modal__footer">
+                                    <button class="slds-button slds-button_neutral" onclick={closeModal} title="Cancel">Cancel</button>
+                                    <button class="slds-button slds-button_brand" onclick={submitDetails} title="OK">OK</button>
+                                </footer>
+                            </div>
+                        </section>
+                        <div class="slds-backdrop slds-backdrop_open"></div>
+                    </template>
                 </lightning-card>
             </lightning-tab>
 
             <lightning-tab label="QA Approval">
-                <lightning-card>   
-                    
-                    <lightning-datatable
-                            key-field="id"
-                            data={recordsToDisplay}
-                            columns={columns}
-
-                            sorted-by={sortBy}
-                            sorted-direction={sortDirection}
-                            onsort={doSorting}
-                            hide-checkbox-column="true">
-                    </lightning-datatable>
-                
-
-            <!--PAGE NAVIGATION-->
-            <div class="slds-align_absolute-center" style="height:5rem">
-                <lightning-button disabled={bDisableFirst} icon-name="utility:jump_to_left" label="First" class="slds-p-horizontal_x-small" alternative-text="first page" onclick={firstPage}></lightning-button>
-                <lightning-button disabled={bDisableFirst} icon-name="utility:chevronleft" label="Previous" alternative-text="Previous" onclick={previousPage}></lightning-button>
-                &nbsp;
-                <!--<span class="slds-badge">Showing {pageNumber} &nbsp;of&nbsp; {totalPages} &nbsp;&nbsp;Page(s)</span>-->
-                <span class="slds-badge">Showing {pageNumber} &nbsp;of&nbsp; {totalPages} &nbsp;&nbsp;Page(s)</span>
-                &nbsp;
-                <lightning-button disabled={bDisableLast} icon-name="utility:chevronright" label="Next" alternative-text="Next" onclick={nextPage} class="slds-p-horizontal_x-small" icon-position="right"></lightning-button>
-                <lightning-button disabled={bDisableLast} icon-name="utility:jump_to_right" label="Last" alternative-text="last page" onclick={lastPage} icon-position="right"></lightning-button>
-            </div>
-
-            </lightning-card>
+                <lightning-card>
+                    <template if:true={records}>
+                        <!--LIGHTNING DATATABLE-->
+                        <div style="height:400px">
+                            <lightning-datatable key-field="Id" 
+                                                data={recordsToDisplay} 
+                                                hide-checkbox-column="true" 
+                                                columns={columns}
+                                                onrowaction={openModal}
+                                                sorted-by={sortBy}
+                                                sorted-direction={sortDirection}
+                                                onsort={doSorting}>
+                            </lightning-datatable>
+                        </div>
+                        <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-spread" style="padding-top: 0.5em;">
+                            <!--RECORDS PER PAGE-->
+                            <div class="slds-col">
+                                <div class="slds-list_inline slds-p-bottom_xx-small">
+                                    <label class="slds-text-color_weak slds-p-horizontal_x-small" for="recordsPerPage">Page Size:</label>
+                                    <div class="slds-select_container">
+                                        <select class="slds-select" id="recordsPerPage3" onchange={handleRecordsPerPage}>
+                                            <template for:each={pageSizeOptions} for:item="option">
+                                                <option key={option} value={option}>{option}</option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--PAGE NAVIGATION-->
+                            <div class="slds-align_absolute-center" style="height:5rem">
+                                <lightning-button disabled={bDisableFirst} icon-name="utility:jump_to_left" label="First" class="slds-p-horizontal_x-small" alternative-text="first page" onclick={firstPage}></lightning-button>
+                                <lightning-button disabled={bDisableFirst} icon-name="utility:chevronleft" label="Previous" alternative-text="Previous" onclick={previousPage}></lightning-button>
+                                &nbsp;
+                                <span class="slds-badge">Showing {pageNumber} &nbsp;of&nbsp; {totalPages} &nbsp;&nbsp;Page(s)</span>
+                                &nbsp;
+                                <lightning-button disabled={bDisableLast} icon-name="utility:chevronright" label="Next" alternative-text="Next" onclick={nextPage} class="slds-p-horizontal_x-small" icon-position="right"></lightning-button>
+                                <lightning-button disabled={bDisableLast} icon-name="utility:jump_to_right" label="Last" alternative-text="last page" onclick={lastPage} icon-position="right"></lightning-button>
+                            </div>
+                            <!--TOTAL RECORDS-->
+                            <div class="slds-clearfix">
+                                <div class="slds-float_right">
+                                    <span class="slds-badge"> Total Records: {totalRecords}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+    
+                    <template if:true={isModalOpen}>
+                        <!-- Modal/Popup Box LWC starts here -->
+                        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                            <div class="slds-modal__container">
+                                <!-- Modal/Popup Box LWC header here -->
+                                <header class="slds-modal__header">
+                                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModal}>
+                                        <lightning-icon icon-name="utility:close"
+                                            alternative-text="close"
+                                            variant="inverse"
+                                            size="small" ></lightning-icon>
+                                        <span class="slds-assistive-text">Close</span>
+                                    </button>
+                                    <h2 id="modal-heading-03" class="slds-text-heading_medium slds-hyphenate">Report Record Details</h2>
+                                </header>
+                                <!-- Modal/Popup Box LWC body starts here -->
+                                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-3">
+                                    <lightning-record-view-form
+                                            record-id={recordId} 
+                                            object-api-name={objectName}
+                                        >
+    
+                                        <div class="slds-box">
+                                            <lightning-output-field field-name="Name"> </lightning-output-field>
+                                            <lightning-output-field field-name="Email"></lightning-output-field>
+                                            <lightning-output-field field-name="Phone"> </lightning-output-field>
+                                            <lightning-output-field field-name="MailingState"></lightning-output-field>
+                                        </div>
+                                    </lightning-record-view-form>
+                                </div>
+                                <!-- Modal/Popup Box LWC footer starts here -->
+                                <footer class="slds-modal__footer">
+                                    <button class="slds-button slds-button_neutral" onclick={closeModal} title="Cancel">Cancel</button>
+                                    <button class="slds-button slds-button_brand" onclick={submitDetails} title="OK">OK</button>
+                                </footer>
+                            </div>
+                        </section>
+                        <div class="slds-backdrop slds-backdrop_open"></div>
+                    </template>
+    
+                </lightning-card>
             </lightning-tab>
 
             <lightning-tab label="Distribution Approval">
-                <lightning-card>   
-                    
-                    <lightning-datatable
-                            key-field="id"
-                            data={recordsToDisplay}
-                            columns={columns}
-
-                            sorted-by={sortBy}
-                            sorted-direction={sortDirection}
-                            onsort={doSorting}
-                            hide-checkbox-column="true">
-                    </lightning-datatable>
-                
-
-            <!--PAGE NAVIGATION-->
-            <div class="slds-align_absolute-center" style="height:5rem">
-                <lightning-button disabled={bDisableFirst} icon-name="utility:jump_to_left" label="First" class="slds-p-horizontal_x-small" alternative-text="first page" onclick={firstPage}></lightning-button>
-                <lightning-button disabled={bDisableFirst} icon-name="utility:chevronleft" label="Previous" alternative-text="Previous" onclick={previousPage}></lightning-button>
-                &nbsp;
-                <!--<span class="slds-badge">Showing {pageNumber} &nbsp;of&nbsp; {totalPages} &nbsp;&nbsp;Page(s)</span>-->
-                <span class="slds-badge">Showing {pageNumber} &nbsp;of&nbsp; {totalPages} &nbsp;&nbsp;Page(s)</span>
-                &nbsp;
-                <lightning-button disabled={bDisableLast} icon-name="utility:chevronright" label="Next" alternative-text="Next" onclick={nextPage} class="slds-p-horizontal_x-small" icon-position="right"></lightning-button>
-                <lightning-button disabled={bDisableLast} icon-name="utility:jump_to_right" label="Last" alternative-text="last page" onclick={lastPage} icon-position="right"></lightning-button>
-            </div>
-
-            </lightning-card>
+                <lightning-card>
+                    <template if:true={records}>
+                        <!--LIGHTNING DATATABLE-->
+                        <div style="height:400px">
+                            <lightning-datatable key-field="Id" 
+                                                data={recordsToDisplay} 
+                                                hide-checkbox-column="true" 
+                                                columns={columns}
+                                                onrowaction={openModal}
+                                                sorted-by={sortBy}
+                                                sorted-direction={sortDirection}
+                                                onsort={doSorting}>
+                            </lightning-datatable>
+                        </div>
+                        <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-spread" style="padding-top: 0.5em;">
+                            <!--RECORDS PER PAGE-->
+                            <div class="slds-col">
+                                <div class="slds-list_inline slds-p-bottom_xx-small">
+                                    <label class="slds-text-color_weak slds-p-horizontal_x-small" for="recordsPerPage">Page Size:</label>
+                                    <div class="slds-select_container">
+                                        <select class="slds-select" id="recordsPerPage4" onchange={handleRecordsPerPage}>
+                                            <template for:each={pageSizeOptions} for:item="option">
+                                                <option key={option} value={option}>{option}</option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--PAGE NAVIGATION-->
+                            <div class="slds-align_absolute-center" style="height:5rem">
+                                <lightning-button disabled={bDisableFirst} icon-name="utility:jump_to_left" label="First" class="slds-p-horizontal_x-small" alternative-text="first page" onclick={firstPage}></lightning-button>
+                                <lightning-button disabled={bDisableFirst} icon-name="utility:chevronleft" label="Previous" alternative-text="Previous" onclick={previousPage}></lightning-button>
+                                &nbsp;
+                                <span class="slds-badge">Showing {pageNumber} &nbsp;of&nbsp; {totalPages} &nbsp;&nbsp;Page(s)</span>
+                                &nbsp;
+                                <lightning-button disabled={bDisableLast} icon-name="utility:chevronright" label="Next" alternative-text="Next" onclick={nextPage} class="slds-p-horizontal_x-small" icon-position="right"></lightning-button>
+                                <lightning-button disabled={bDisableLast} icon-name="utility:jump_to_right" label="Last" alternative-text="last page" onclick={lastPage} icon-position="right"></lightning-button>
+                            </div>
+                            <!--TOTAL RECORDS-->
+                            <div class="slds-clearfix">
+                                <div class="slds-float_right">
+                                    <span class="slds-badge"> Total Records: {totalRecords}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+    
+                    <template if:true={isModalOpen}>
+                        <!-- Modal/Popup Box LWC starts here -->
+                        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                            <div class="slds-modal__container">
+                                <!-- Modal/Popup Box LWC header here -->
+                                <header class="slds-modal__header">
+                                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModal}>
+                                        <lightning-icon icon-name="utility:close"
+                                            alternative-text="close"
+                                            variant="inverse"
+                                            size="small" ></lightning-icon>
+                                        <span class="slds-assistive-text">Close</span>
+                                    </button>
+                                    <h2 id="modal-heading-04" class="slds-text-heading_medium slds-hyphenate">Report Record Details</h2>
+                                </header>
+                                <!-- Modal/Popup Box LWC body starts here -->
+                                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-4">
+                                    <lightning-record-view-form
+                                            record-id={recordId} 
+                                            object-api-name={objectName}
+                                        >
+    
+                                        <div class="slds-box">
+                                            <lightning-output-field field-name="Name"> </lightning-output-field>
+                                            <lightning-output-field field-name="Email"></lightning-output-field>
+                                            <lightning-output-field field-name="Phone"> </lightning-output-field>
+                                            <lightning-output-field field-name="MailingState"></lightning-output-field>
+                                        </div>
+                                    </lightning-record-view-form>
+                                </div>
+                                <!-- Modal/Popup Box LWC footer starts here -->
+                                <footer class="slds-modal__footer">
+                                    <button class="slds-button slds-button_neutral" onclick={closeModal} title="Cancel">Cancel</button>
+                                    <button class="slds-button slds-button_brand" onclick={submitDetails} title="OK">OK</button>
+                                </footer>
+                            </div>
+                        </section>
+                        <div class="slds-backdrop slds-backdrop_open"></div>
+                    </template>
+    
+                </lightning-card>
             </lightning-tab>
         </lightning-tabset>
     </lightning-card>
